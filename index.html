@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#5b3a2e" />
+  <meta name="description" content="Site de agendamento e apresentação da fotógrafa Thais Denisy. Momentos eternos, memórias vivas." />
+  <title>Thais Denisy Fotografia | Momentos eternos, memórias vivas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="site-header" id="inicio">
+    <nav class="nav-shell" aria-label="Navegação principal">
+      <a class="brand" href="#inicio" aria-label="Ir para início">
+        <span class="brand-mark">TD</span>
+        <span class="brand-text" data-render="brand.name">Thais Denisy Fotografia</span>
+      </a>
+      <button class="menu-button" id="menuButton" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="nav-links" id="navLinks">
+        <a href="#sobre">Sobre</a>
+        <a href="#servicos">Serviços</a>
+        <a href="#portfolio">Portfólio</a>
+        <a href="#feedbacks">Feedbacks</a>
+        <a href="#duvidas">Dúvidas</a>
+        <button type="button" class="nav-admin" id="openAdminTop" data-admin-open>Área da fotógrafa</button>
+        <a class="nav-cta" href="#agendamento">Agendar</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero section-pad">
+      <div class="hero-bg-orb hero-bg-orb-one"></div>
+      <div class="hero-bg-orb hero-bg-orb-two"></div>
+      <div class="container hero-grid">
+        <div class="hero-copy reveal">
+          <p class="eyebrow" data-render="brand.eyebrow">Fotografia com afeto, direção e elegância</p>
+          <h1 data-render="brand.heroTitle">Seu ensaio com uma experiência leve, moderna e memorável.</h1>
+          <p class="hero-subtitle" data-render="brand.heroSubtitle">Transformo histórias em imagens que acolhem, emocionam e permanecem para sempre.</p>
+          <p class="slogan">“<span data-render="brand.slogan">Momentos eternos, memórias vivas.</span>”</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#agendamento" data-render="brand.ctaText">Agendar meu ensaio</a>
+            <a class="button ghost" href="#portfolio">Ver trabalhos</a>
+          </div>
+        </div>
+
+        <div class="hero-card reveal delay-1">
+          <div class="phone-preview" aria-label="Prévia visual do estúdio">
+            <div class="phone-top"></div>
+            <div class="preview-stack">
+              <div class="preview-card large"></div>
+              <div class="preview-row">
+                <div class="preview-card small"></div>
+                <div class="preview-card small soft"></div>
+              </div>
+            </div>
+            <div class="floating-note">
+              <span>Agenda aberta</span>
+              <strong data-render="brand.shortCall">Ensaios no estúdio e externos</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="quick-strip" aria-label="Destaques">
+      <div class="container strip-grid" id="statsGrid"></div>
+    </section>
+
+    <section class="section-pad" id="sobre">
+      <div class="container about-grid">
+        <div class="image-frame reveal" id="aboutPhotoFrame"></div>
+        <div class="section-copy reveal delay-1">
+          <p class="eyebrow">Sobre mim</p>
+          <h2 data-render="about.title">Prazer, eu sou a Thais.</h2>
+          <p data-render="about.text">Sou fotógrafa e acredito que fotografar é guardar com amor aquilo que o tempo não deveria apagar. Meu propósito é criar ensaios que façam você se enxergar com carinho, verdade e beleza.</p>
+          <div class="signature-card">
+            <span>Minha essência</span>
+            <strong>Direção suave, detalhes afetivos e memórias vivas.</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad warm" id="servicos">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Planos e serviços</p>
+          <h2>Escolha o ensaio que combina com o seu momento.</h2>
+          <p>Todos os textos, valores e detalhes abaixo podem ser alterados no painel da fotógrafa.</p>
+        </div>
+        <div class="cards-grid" id="servicesGrid"></div>
+      </div>
+    </section>
+
+    <section class="section-pad" id="portfolio">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Melhores trabalhos</p>
+          <h2>Um pouco do que já eternizei.</h2>
+          <p>Insira suas fotos favoritas no painel e mantenha seu portfólio sempre atualizado.</p>
+        </div>
+        <div class="portfolio-grid" id="portfolioGrid"></div>
+      </div>
+    </section>
+
+    <section class="section-pad warm" id="feedbacks">
+      <div class="container">
+        <div class="section-head reveal">
+          <p class="eyebrow">Feedbacks</p>
+          <h2>Palavras de quem viveu a experiência.</h2>
+        </div>
+        <div class="feedback-track" id="feedbackGrid"></div>
+      </div>
+    </section>
+
+    <section class="section-pad" id="duvidas">
+      <div class="container faq-grid">
+        <div class="section-copy reveal">
+          <p class="eyebrow">Dúvidas comuns</p>
+          <h2>Antes do ensaio, você não precisa se preocupar com tudo sozinha.</h2>
+          <p>Reuni aqui respostas para as perguntas mais frequentes. Você pode editar, adicionar ou remover perguntas no painel.</p>
+        </div>
+        <div class="faq-list reveal delay-1" id="faqList"></div>
+      </div>
+    </section>
+
+    <section class="section-pad appointment" id="agendamento">
+      <div class="container appointment-grid">
+        <div class="section-copy reveal">
+          <p class="eyebrow">Agendamento</p>
+          <h2>Vamos conversar sobre o seu ensaio?</h2>
+          <p>Preencha rapidinho e você será direcionada para o WhatsApp com a mensagem pronta.</p>
+          <div class="contact-card">
+            <span>WhatsApp</span>
+            <a id="whatsappTextLink" href="https://wa.me/5516994137996" target="_blank" rel="noopener">Enviar mensagem agora</a>
+          </div>
+        </div>
+
+        <form class="booking-form reveal delay-1" id="bookingForm">
+          <label>
+            Seu nome
+            <input name="name" type="text" placeholder="Digite seu nome" required />
+          </label>
+          <label>
+            Tipo de ensaio
+            <select name="session" required>
+              <option value="">Escolha uma opção</option>
+              <option>Ensaio corporativo</option>
+              <option>Ensaio gestante</option>
+              <option>Ensaio família</option>
+              <option>Ensaio casal</option>
+              <option>Ensaio infantil</option>
+              <option>Debutante / 15 anos</option>
+              <option>Evento</option>
+              <option>Outro</option>
+            </select>
+          </label>
+          <div class="form-row">
+            <label>
+              Data desejada
+              <input name="date" type="date" />
+            </label>
+            <label>
+              Melhor horário
+              <input name="time" type="time" />
+            </label>
+          </div>
+          <label>
+            Conte um pouquinho do que você deseja
+            <textarea name="message" rows="4" placeholder="Ex.: quero fotos profissionais para meu perfil, fotos em família, ensaio gestante..."></textarea>
+          </label>
+          <button class="button primary full" type="submit">Enviar para o WhatsApp</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <strong data-render="brand.name">Thais Denisy Fotografia</strong>
+        <p>“<span data-render="brand.slogan">Momentos eternos, memórias vivas.</span>”</p>
+      </div>
+      <div class="footer-actions">
+        <a id="footerWhatsapp" href="https://wa.me/5516994137996" target="_blank" rel="noopener">Fale comigo</a>
+      </div>
+    </div>
+  </footer>
+
+  <a class="floating-whatsapp" id="floatingWhatsapp" href="https://wa.me/5516994137996" target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+    <span>WhatsApp</span>
+  </a>
+
+  <dialog class="login-modal" id="loginModal">
+    <form method="dialog" class="login-box" id="loginForm">
+      <button class="modal-close" value="cancel" aria-label="Fechar">×</button>
+      <p class="eyebrow">Painel privado</p>
+      <h2>Área da fotógrafa</h2>
+      <p>Digite a senha para editar textos, fotos, planos, feedbacks e dúvidas.</p>
+      <label>
+        Senha
+        <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Digite a senha" />
+      </label>
+      <p class="error-message" id="loginError" hidden>Senha incorreta. Tente novamente.</p>
+      <button class="button primary full" type="submit">Entrar no painel</button>
+    </form>
+  </dialog>
+
+  <aside class="admin-panel" id="adminPanel" aria-hidden="true">
+    <div class="admin-header">
+      <div>
+        <p class="eyebrow">Painel da fotógrafa</p>
+        <h2>Editar site</h2>
+      </div>
+      <button type="button" class="admin-close" id="closeAdmin" aria-label="Fechar painel">×</button>
+    </div>
+
+    <div class="admin-actions sticky-actions">
+      <button type="button" class="button primary" id="saveContent">Salvar alterações</button>
+      <button type="button" class="button ghost" id="exportContent">Exportar JSON</button>
+      <label class="button ghost import-label">
+        Importar JSON
+        <input type="file" id="importContent" accept="application/json" hidden />
+      </label>
+      <button type="button" class="button danger" id="resetContent">Restaurar exemplo</button>
+    </div>
+
+    <div class="admin-scroll" id="adminEditor"></div>
+  </aside>
+
+  <template id="adminSectionTemplate">
+    <section class="admin-card"></section>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
