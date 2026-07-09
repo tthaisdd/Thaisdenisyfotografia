@@ -1,8 +1,27 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+
 (() => {
   'use strict';
 
   const ADMIN_PASSWORD = 'Thais2026';
   const STORAGE_KEY = 'td-fotografia-site-v1';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_rb_BDYgPqOyrnFft_ayzP5vaLeWhqlI",
+    authDomain: "thaisdenisyfotografia-61b44.firebaseapp.com",
+    projectId: "thaisdenisyfotografia-61b44",
+    storageBucket: "thaisdenisyfotografia-61b44.firebasestorage.app",
+    messagingSenderId: "43837567097",
+    appId: "1:43837567097:web:8b60e8b2b2f4452a2764a8",
+    measurementId: "G-JB6H94F4BN"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const storage = getStorage(app);
+  const SITE_DOC = doc(db, "site", "conteudo");
 
   const defaultData = {
     brand: {
@@ -28,42 +47,12 @@
       photo: ''
     },
     services: [
-      {
-        title: 'Ensaio corporativo',
-        price: 'Consulte valores',
-        description: 'Fotos profissionais para perfil, currículo, LinkedIn, marca pessoal e posicionamento digital.',
-        bullets: ['Direção de poses', 'Fotos em estúdio', 'Ideal para profissionais e empresas']
-      },
-      {
-        title: 'Ensaio gestante',
-        price: 'Consulte valores',
-        description: 'Um registro sensível e elegante para eternizar a espera mais especial da família.',
-        bullets: ['Direção delicada', 'Fotos individuais e em família', 'Experiência leve e acolhedora']
-      },
-      {
-        title: 'Família e casal',
-        price: 'Consulte valores',
-        description: 'Para guardar conexões reais, abraços, olhares e lembranças que atravessam o tempo.',
-        bullets: ['Ensaio afetivo', 'Momentos espontâneos', 'Pode ser em estúdio ou externo']
-      },
-      {
-        title: 'Infantil',
-        price: 'Consulte valores',
-        description: 'Registros doces, naturais e cheios de personalidade para cada fase da infância.',
-        bullets: ['Ambiente tranquilo', 'Fotos espontâneas', 'Acompanhamento com carinho']
-      },
-      {
-        title: 'Debutante / 15 anos',
-        price: 'Consulte valores',
-        description: 'Uma experiência pensada para valorizar a personalidade, a beleza e a história da debutante.',
-        bullets: ['Direção personalizada', 'Fotos modernas', 'Ideal para pré-evento ou festa']
-      },
-      {
-        title: 'Eventos',
-        price: 'Consulte valores',
-        description: 'Cobertura para celebrações, aniversários, noivados, batizados e momentos especiais.',
-        bullets: ['Registro completo', 'Detalhes e emoções', 'Entrega em galeria online']
-      }
+      { title: 'Ensaio corporativo', price: 'Consulte valores', description: 'Fotos profissionais para perfil, currículo, LinkedIn, marca pessoal e posicionamento digital.', bullets: ['Direção de poses', 'Fotos em estúdio', 'Ideal para profissionais e empresas'] },
+      { title: 'Ensaio gestante', price: 'Consulte valores', description: 'Um registro sensível e elegante para eternizar a espera mais especial da família.', bullets: ['Direção delicada', 'Fotos individuais e em família', 'Experiência leve e acolhedora'] },
+      { title: 'Família e casal', price: 'Consulte valores', description: 'Para guardar conexões reais, abraços, olhares e lembranças que atravessam o tempo.', bullets: ['Ensaio afetivo', 'Momentos espontâneos', 'Pode ser em estúdio ou externo'] },
+      { title: 'Infantil', price: 'Consulte valores', description: 'Registros doces, naturais e cheios de personalidade para cada fase da infância.', bullets: ['Ambiente tranquilo', 'Fotos espontâneas', 'Acompanhamento com carinho'] },
+      { title: 'Debutante / 15 anos', price: 'Consulte valores', description: 'Uma experiência pensada para valorizar a personalidade, a beleza e a história da debutante.', bullets: ['Direção personalizada', 'Fotos modernas', 'Ideal para pré-evento ou festa'] },
+      { title: 'Eventos', price: 'Consulte valores', description: 'Cobertura para celebrações, aniversários, noivados, batizados e momentos especiais.', bullets: ['Registro completo', 'Detalhes e emoções', 'Entrega em galeria online'] }
     ],
     portfolio: [
       { title: 'Gestante', category: 'Ensaio afetivo', image: '' },
@@ -86,16 +75,17 @@
     ]
   };
 
-  let state = loadData();
+  let state = clone(defaultData);
   let isAdminOpen = false;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
-  document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', async () => {
     wireNavigation();
     wireLogin();
     wireBooking();
+    await loadData();
     renderSite();
     renderAdmin();
     openAdminFromHash();
@@ -103,21 +93,37 @@
 
   window.addEventListener('hashchange', openAdminFromHash);
 
-  function loadData() {
+  async function loadData() {
     try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (!saved) return clone(defaultData);
-      return mergeDeep(clone(defaultData), JSON.parse(saved));
+      const snap = await getDoc(SITE_DOC);
+
+      if (snap.exists()) {
+        state = mergeDeep(clone(defaultData), snap.data());
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        return;
+      }
+
+      const local = localStorage.getItem(STORAGE_KEY);
+      state = local ? mergeDeep(clone(defaultData), JSON.parse(local)) : clone(defaultData);
+      await setDoc(SITE_DOC, state);
     } catch (error) {
-      console.warn('Não foi possível carregar o conteúdo salvo.', error);
-      return clone(defaultData);
+      console.warn('Erro ao carregar Firebase. Usando navegador.', error);
+      const local = localStorage.getItem(STORAGE_KEY);
+      state = local ? mergeDeep(clone(defaultData), JSON.parse(local)) : clone(defaultData);
     }
   }
 
-  function saveData() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    renderSite();
-    showToast('Alterações salvas neste navegador.');
+  async function saveData() {
+    try {
+      await setDoc(SITE_DOC, state);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderSite();
+      showToast('Alterações salvas online.');
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      showToast('Salvou só neste navegador. Verifique as permissões do Firebase.');
+    }
   }
 
   function clone(value) {
@@ -126,6 +132,7 @@
 
   function mergeDeep(target, source) {
     if (!source || typeof source !== 'object') return target;
+
     Object.keys(source).forEach((key) => {
       if (Array.isArray(source[key])) {
         target[key] = source[key];
@@ -135,6 +142,7 @@
         target[key] = source[key];
       }
     });
+
     return target;
   }
 
@@ -161,6 +169,10 @@
       .replaceAll("'", '&#039;');
   }
 
+  function escapeAttribute(value = '') {
+    return String(value).replaceAll("'", '%27').replaceAll('"', '%22');
+  }
+
   function sanitizePhone(value = '') {
     return String(value).replace(/\D/g, '');
   }
@@ -175,8 +187,7 @@
 
   function renderSite() {
     $$('[data-render]').forEach((node) => {
-      const path = node.dataset.render;
-      node.textContent = getByPath(path);
+      node.textContent = getByPath(node.dataset.render);
     });
 
     renderLinks();
@@ -191,6 +202,7 @@
   function renderLinks() {
     const defaultMessage = `Olá, Thais! Vim pelo seu site e gostaria de saber mais sobre um ensaio.\n\n“${state.brand.slogan}”`;
     const href = whatsappWithMessage(defaultMessage);
+
     ['floatingWhatsapp', 'footerWhatsapp', 'whatsappTextLink'].forEach((id) => {
       const node = document.getElementById(id);
       if (node) node.href = href;
@@ -200,6 +212,7 @@
   function renderStats() {
     const grid = $('#statsGrid');
     if (!grid) return;
+
     grid.innerHTML = state.stats.map((item) => `
       <article class="stat reveal">
         <strong>${escapeHtml(item.value)}</strong>
@@ -211,6 +224,7 @@
   function renderAboutPhoto() {
     const frame = $('#aboutPhotoFrame');
     if (!frame) return;
+
     frame.classList.toggle('has-photo', Boolean(state.about.photo));
     frame.style.backgroundImage = state.about.photo
       ? `linear-gradient(180deg, transparent 35%, rgba(31,21,17,.54)), url("${state.about.photo}")`
@@ -220,9 +234,14 @@
   function renderServices() {
     const grid = $('#servicesGrid');
     if (!grid) return;
+
     grid.innerHTML = state.services.map((service) => {
-      const bullets = normalizeBullets(service.bullets).map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join('');
+      const bullets = normalizeBullets(service.bullets)
+        .map((bullet) => `<li>${escapeHtml(bullet)}</li>`)
+        .join('');
+
       const msg = `Olá, Thais! Vim pelo seu site e gostaria de saber mais sobre: ${service.title}.`;
+
       return `
         <article class="service-card reveal">
           <h3>${escapeHtml(service.title)}</h3>
@@ -238,8 +257,12 @@
   function renderPortfolio() {
     const grid = $('#portfolioGrid');
     if (!grid) return;
+
     grid.innerHTML = state.portfolio.map((item) => {
-      const imageStyle = item.image ? ` style="background-image: linear-gradient(180deg, transparent 38%, rgba(31,21,17,.78)), url('${escapeAttribute(item.image)}')"` : '';
+      const imageStyle = item.image
+        ? ` style="background-image: linear-gradient(180deg, transparent 38%, rgba(31,21,17,.78)), url('${escapeAttribute(item.image)}')"`
+        : '';
+
       return `
         <article class="portfolio-card reveal"${imageStyle}>
           <div class="portfolio-card-content">
@@ -251,13 +274,10 @@
     }).join('');
   }
 
-  function escapeAttribute(value = '') {
-    return String(value).replaceAll("'", '%27').replaceAll('"', '%22');
-  }
-
   function renderTestimonials() {
     const grid = $('#feedbackGrid');
     if (!grid) return;
+
     grid.innerHTML = state.testimonials.map((item) => `
       <article class="feedback-card reveal">
         <div class="stars" aria-label="5 estrelas">★★★★★</div>
@@ -271,6 +291,7 @@
   function renderFaqs() {
     const list = $('#faqList');
     if (!list) return;
+
     list.innerHTML = state.faqs.map((item, index) => `
       <article class="faq-item ${index === 0 ? 'open' : ''}">
         <button class="faq-question" type="button" aria-expanded="${index === 0 ? 'true' : 'false'}">
@@ -303,6 +324,7 @@
   function wireNavigation() {
     const menuButton = $('#menuButton');
     const navLinks = $('#navLinks');
+
     if (menuButton && navLinks) {
       menuButton.addEventListener('click', () => {
         const isOpen = document.body.classList.toggle('menu-open');
@@ -329,10 +351,12 @@
     adminOpenButtons.forEach((button) => {
       button.addEventListener('click', () => loginModal?.showModal());
     });
+
     closeAdmin?.addEventListener('click', closeAdminPanel);
 
     loginForm?.addEventListener('submit', (event) => {
       event.preventDefault();
+
       if (passwordInput.value === ADMIN_PASSWORD) {
         loginError.hidden = true;
         passwordInput.value = '';
@@ -344,11 +368,14 @@
     });
 
     $('#saveContent')?.addEventListener('click', saveData);
-    $('#resetContent')?.addEventListener('click', () => {
-      const ok = confirm('Deseja restaurar o conteúdo de exemplo? Isso apaga as edições salvas neste navegador.');
+
+    $('#resetContent')?.addEventListener('click', async () => {
+      const ok = confirm('Deseja restaurar o conteúdo de exemplo? Isso apaga as edições salvas online.');
       if (!ok) return;
+
       state = clone(defaultData);
       localStorage.removeItem(STORAGE_KEY);
+      await saveData();
       renderSite();
       renderAdmin();
       showToast('Conteúdo de exemplo restaurado.');
@@ -381,8 +408,10 @@
 
   function wireBooking() {
     const form = $('#bookingForm');
+
     form?.addEventListener('submit', (event) => {
       event.preventDefault();
+
       const formData = new FormData(form);
       const name = formData.get('name') || '';
       const session = formData.get('session') || '';
@@ -432,11 +461,11 @@
       `)}
 
       ${adminCard('Sobre mim + foto da fotógrafa', `
-        <p class="helper-text">Você pode colar o link de uma imagem ou escolher um arquivo. Para site no GitHub/Netlify, o ideal é subir a foto em uma pasta chamada <strong>imagens</strong> e usar o caminho, por exemplo: <strong>imagens/thais.jpg</strong>.</p>
+        <p class="helper-text">Escolha uma foto do computador. Ela será enviada para o Firebase Storage e ficará salva online.</p>
         <div class="admin-grid">
           ${field('Título da seção', 'about.title', 'span-2')}
           ${textareaField('Texto sobre mim', 'about.text', 'span-2', 6)}
-          ${field('Link/caminho da foto da fotógrafa', 'about.photo', 'span-2')}
+          ${field('Link da foto da fotógrafa', 'about.photo', 'span-2')}
           <label class="span-2">Escolher foto do computador
             <input type="file" accept="image/*" data-file-path="about.photo" />
           </label>
@@ -452,7 +481,6 @@
 
     wireAdminInputs();
     wireAdminLists();
-    if (!isAdminOpen) return;
   }
 
   function adminCard(title, content) {
@@ -482,7 +510,7 @@
 
   function adminStats() {
     const items = state.stats.map((item, index) => `
-      <div class="admin-list-item" data-list="stats" data-index="${index}">
+      <div class="admin-list-item">
         <div class="admin-list-top">
           <strong>Destaque ${index + 1}</strong>
           <button type="button" class="remove-item" data-remove="stats" data-index="${index}">Remover</button>
@@ -506,7 +534,7 @@
 
   function adminServices() {
     const items = state.services.map((item, index) => `
-      <div class="admin-list-item" data-list="services" data-index="${index}">
+      <div class="admin-list-item">
         <div class="admin-list-top">
           <strong>Plano/serviço ${index + 1}</strong>
           <button type="button" class="remove-item" data-remove="services" data-index="${index}">Remover</button>
@@ -536,12 +564,12 @@
 
   function adminPortfolio() {
     const items = state.portfolio.map((item, index) => `
-      <div class="admin-list-item" data-list="portfolio" data-index="${index}">
+      <div class="admin-list-item">
         <div class="admin-list-top">
           <strong>Trabalho ${index + 1}</strong>
           <button type="button" class="remove-item" data-remove="portfolio" data-index="${index}">Remover</button>
         </div>
-        <p class="helper-text">Use link/caminho da imagem, ex.: <strong>imagens/gestante.jpg</strong>. Também dá para escolher uma foto pequena do computador.</p>
+        <p class="helper-text">Escolha uma imagem do computador. Ela será salva online no Firebase Storage.</p>
         <div class="admin-grid">
           <label>Título
             <input data-list-field="portfolio.${index}.title" value="${escapeHtml(item.title)}" />
@@ -549,7 +577,7 @@
           <label>Categoria
             <input data-list-field="portfolio.${index}.category" value="${escapeHtml(item.category)}" />
           </label>
-          <label class="span-2">Link/caminho da imagem
+          <label class="span-2">Link da imagem
             <input data-list-field="portfolio.${index}.image" value="${escapeHtml(item.image)}" />
           </label>
           <label class="span-2">Escolher imagem do computador
@@ -567,7 +595,7 @@
 
   function adminTestimonials() {
     const items = state.testimonials.map((item, index) => `
-      <div class="admin-list-item" data-list="testimonials" data-index="${index}">
+      <div class="admin-list-item">
         <div class="admin-list-top">
           <strong>Feedback ${index + 1}</strong>
           <button type="button" class="remove-item" data-remove="testimonials" data-index="${index}">Remover</button>
@@ -594,7 +622,7 @@
 
   function adminFaqs() {
     const items = state.faqs.map((item, index) => `
-      <div class="admin-list-item" data-list="faqs" data-index="${index}">
+      <div class="admin-list-item">
         <div class="admin-list-top">
           <strong>Dúvida ${index + 1}</strong>
           <button type="button" class="remove-item" data-remove="faqs" data-index="${index}">Remover</button>
@@ -627,11 +655,13 @@
     $$('[data-list-field]').forEach((input) => {
       input.addEventListener('input', () => {
         const path = input.dataset.listField;
+
         if (path.endsWith('.bullets')) {
           setListField(path, input.value.split('\n').map((line) => line.trim()).filter(Boolean));
         } else {
           setListField(path, input.value);
         }
+
         renderSite();
       });
     });
@@ -640,8 +670,11 @@
       input.addEventListener('change', async () => {
         const file = input.files?.[0];
         if (!file) return;
-        const dataUrl = await fileToDataUrl(file);
-        setByPath(input.dataset.filePath, dataUrl);
+
+        showToast('Enviando foto...');
+        const url = await uploadImage(file, input.dataset.filePath);
+        setByPath(input.dataset.filePath, url);
+        await saveData();
         renderSite();
         renderAdmin();
       });
@@ -651,20 +684,40 @@
       input.addEventListener('change', async () => {
         const file = input.files?.[0];
         if (!file) return;
-        const dataUrl = await fileToDataUrl(file);
+
         const list = input.dataset.fileList;
         const index = Number(input.dataset.fileIndex);
         const key = input.dataset.fileKey;
-        state[list][index][key] = dataUrl;
+        const path = `${list}/${index}/${key}`;
+
+        showToast('Enviando imagem...');
+        const url = await uploadImage(file, path);
+        state[list][index][key] = url;
+        await saveData();
         renderSite();
         renderAdmin();
       });
     });
   }
 
+  async function uploadImage(file, folderPath) {
+    const safeName = file.name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9.-]/g, '-')
+      .toLowerCase();
+
+    const filePath = `site-fotos/${folderPath}/${Date.now()}-${safeName}`;
+    const fileRef = ref(storage, filePath);
+
+    await uploadBytes(fileRef, file);
+    return await getDownloadURL(fileRef);
+  }
+
   function setListField(path, value) {
     const [listName, indexText, key] = path.split('.');
     const index = Number(indexText);
+
     if (!state[listName] || !state[listName][index]) return;
     state[listName][index][key] = value;
   }
@@ -682,6 +735,7 @@
       button.addEventListener('click', () => {
         const list = button.dataset.remove;
         const index = Number(button.dataset.index);
+
         state[list].splice(index, 1);
         renderAdmin();
         renderSite();
@@ -697,54 +751,55 @@
       testimonials: { name: 'Nome da cliente', text: 'Escreva o feedback aqui.', detail: 'Tipo de ensaio' },
       faqs: { question: 'Nova pergunta?', answer: 'Escreva a resposta aqui.' }
     };
-    state[listName].push(clone(map[listName]));
-  }
 
-  function fileToDataUrl(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+    state[listName].push(clone(map[listName]));
   }
 
   function exportJson() {
     const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
+
     link.href = url;
     link.download = 'conteudo-site-thais-denisy.json';
     link.click();
+
     URL.revokeObjectURL(url);
   }
 
   function importJson(event) {
     const file = event.target.files?.[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onload = () => {
+
+    reader.onload = async () => {
       try {
         state = mergeDeep(clone(defaultData), JSON.parse(reader.result));
+        await saveData();
         renderSite();
         renderAdmin();
-        showToast('Conteúdo importado. Clique em salvar para manter.');
+        showToast('Conteúdo importado e salvo online.');
       } catch (error) {
         alert('Não consegui importar este arquivo. Verifique se é um JSON válido.');
       }
     };
+
     reader.readAsText(file);
   }
 
   function showToast(message) {
     let toast = $('.toast');
+
     if (!toast) {
       toast = document.createElement('div');
       toast.className = 'toast';
       document.body.appendChild(toast);
     }
+
     toast.textContent = message;
     toast.classList.add('show');
+
     window.setTimeout(() => toast.classList.remove('show'), 2600);
   }
 })();
